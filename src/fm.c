@@ -106,10 +106,13 @@ void update(Directory **directory, KeyType key) {
       break;
     if (dir->entries[dir->current_row].type != DT_DIR)
       break;
-    if (chdir(dir->entries[dir->current_row].name) != 0)
-      break;
-    directory_free(dir);
-    (*directory) = directory_init();
+
+    chdir(dir->entries[dir->current_row].name);
+    Directory *next_dir = directory_init();
+    if (next_dir != NULL) {
+      directory_free(dir);
+      (*directory) = next_dir;
+    }
     break;
   default:
     break;
@@ -120,12 +123,10 @@ void update(Directory **directory, KeyType key) {
   for (size_t i = 2; i < (*directory)->count; i++) {
     if (i == (size_t)(*directory)->current_row) {
       attron(COLOR_PAIR(1));
-      printw("%s %u\n", (*directory)->entries[i].name,
-             (unsigned int)(*directory)->entries[i].type);
+      printw("%s\n", (*directory)->entries[i].name);
       attroff(COLOR_PAIR(1));
     } else {
-      printw("%s %u\n", (*directory)->entries[i].name,
-             (unsigned int)(*directory)->entries[i].type);
+      printw("%s\n", (*directory)->entries[i].name);
     }
   }
 }
