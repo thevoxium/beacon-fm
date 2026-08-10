@@ -87,6 +87,12 @@ void update(Directory **directory, KeyType key) {
   clear();
   Directory *dir = *directory;
   switch (key) {
+  case H:
+    if (chdir("..") != 0)
+      break;
+    directory_free(dir);
+    (*directory) = directory_init();
+    break;
   case J:
     if (dir->count > 0 && dir->current_row < dir->count - 1)
       dir->current_row++;

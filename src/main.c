@@ -18,6 +18,10 @@ int main(void) {
     case 'q':
     case 'Q':
       goto quit;
+    case 'h':
+    case 'H':
+      update(&directory, H);
+      break;
     case 'l':
     case 'L':
       update(&directory, L);
