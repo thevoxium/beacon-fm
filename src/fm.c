@@ -32,7 +32,7 @@ Directory *directory_init(void) {
 
   DirectoryEntry *entry;
 
-  directory->current_row = 2;
+  directory->current_row = 0;
   directory->count = 0;
   directory->capacity = 64;
   directory->entries =
@@ -56,6 +56,9 @@ Directory *directory_init(void) {
       }
       directory->entries = resized;
     }
+
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+      continue;
 
     FileEntry *file = &directory->entries[directory->count];
     file->name = strdup(entry->d_name);
@@ -98,7 +101,7 @@ void update(Directory **directory, KeyType key) {
       dir->current_row++;
     break;
   case K:
-    if (dir->current_row > 2)
+    if (dir->current_row > 0)
       dir->current_row--;
     break;
   case L:
@@ -120,7 +123,7 @@ void update(Directory **directory, KeyType key) {
 
   if ((*directory) == NULL)
     return;
-  for (size_t i = 2; i < (*directory)->count; i++) {
+  for (size_t i = 0; i < (*directory)->count; i++) {
     if (i == (size_t)(*directory)->current_row) {
       attron(COLOR_PAIR(1));
       printw("%s\n", (*directory)->entries[i].name);
