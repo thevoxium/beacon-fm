@@ -8,8 +8,8 @@ int main(void) {
     endwin();
     return 1;
   }
-  draw(directory);
 
+  update(&directory, NONE);
   refresh();
 
   while (1) {
@@ -18,11 +18,24 @@ int main(void) {
     case 'q':
     case 'Q':
       goto quit;
+    case 'l':
+    case 'L':
+      update(&directory, L);
+      break;
+    case 'j':
+    case 'J':
+      update(&directory, J);
+      break;
+    case 'k':
+    case 'K':
+      update(&directory, K);
+      break;
     default:
       continue;
     }
-  }
 
+    refresh();
+  }
 quit:
 
   directory_free(directory);

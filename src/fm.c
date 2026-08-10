@@ -32,6 +32,7 @@ Directory *directory_init(void) {
 
   DirectoryEntry *entry;
 
+  directory->current_row = 2;
   directory->count = 0;
   directory->capacity = 64;
   directory->entries =
@@ -82,11 +83,43 @@ void directory_free(Directory *directory) {
   free(directory);
 }
 
-void draw(Directory *directory) {
-  if (directory == NULL)
+void update(Directory **directory, KeyType key) {
+  clear();
+  Directory *dir = *directory;
+  switch (key) {
+  case J:
+    if (dir->count > 0 && dir->current_row < dir->count - 1)
+      dir->current_row++;
+    break;
+  case K:
+    if (dir->current_row > 2)
+      dir->current_row--;
+    break;
+  case L:
+    if (dir->count == 0 || dir->current_row >= dir->count)
+      break;
+    if (dir->entries[dir->current_row].type != DT_DIR)
+      break;
+    if (chdir(dir->entries[dir->current_row].name) != 0)
+      break;
+    directory_free(dir);
+    (*directory) = directory_init();
+    break;
+  default:
+    break;
+  }
+
+  if ((*directory) == NULL)
     return;
-  for (size_t i = 0; i < directory->count; i++) {
-    printw("%s %u\n", directory->entries[i].name,
-           (unsigned int)directory->entries[i].type);
+  for (size_t i = 2; i < (*directory)->count; i++) {
+    if (i == (size_t)(*directory)->current_row) {
+      attron(COLOR_PAIR(1));
+      printw("%s %u\n", (*directory)->entries[i].name,
+             (unsigned int)(*directory)->entries[i].type);
+      attroff(COLOR_PAIR(1));
+    } else {
+      printw("%s %u\n", (*directory)->entries[i].name,
+             (unsigned int)(*directory)->entries[i].type);
+    }
   }
 }
