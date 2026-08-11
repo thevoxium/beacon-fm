@@ -1,4 +1,6 @@
 #include "fm.h"
+
+#define MARGIN_X 2
 #include <dirent.h>
 #include <ncurses.h>
 #include <stddef.h>
@@ -134,17 +136,22 @@ void update(Directory **directory, KeyType key) {
 
   for (size_t i = first; i < MIN((*directory)->count, first + visible); i++) {
     FileEntry *file = &(*directory)->entries[i];
+    move((int)(i - first), MARGIN_X);
     if (i == (*directory)->current_row) {
       attron(COLOR_PAIR(PAIR_SELECTED));
-      printw("%s\n", file->name);
+      if (file->type == DT_DIR) {
+        printw("> %s", file->name);
+      } else {
+        printw("%s", file->name);
+      }
       attroff(COLOR_PAIR(PAIR_SELECTED));
     } else if (file->type == DT_DIR) {
       attron(COLOR_PAIR(PAIR_DIR) | A_BOLD);
-      printw("%s\n", file->name);
+      printw("> %s", file->name);
       attroff(COLOR_PAIR(PAIR_DIR) | A_BOLD);
     } else {
       attron(COLOR_PAIR(PAIR_FILE));
-      printw("%s\n", file->name);
+      printw("%s", file->name);
       attroff(COLOR_PAIR(PAIR_FILE));
     }
   }
