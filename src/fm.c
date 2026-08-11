@@ -88,11 +88,11 @@ void directory_free(Directory *directory) {
   free(directory);
 }
 
-void update(Directory **directory, KeyType key) {
+void update(Directory **directory, int key) {
   clear();
   Directory *dir = *directory;
   switch (key) {
-  case Y: {
+  case 'y': {
     const char *name = dir->entries[dir->current_row].name;
     size_t len = strlen(dir->path) + 1 + strlen(name) + 1;
     char *full = (char *)malloc(len);
@@ -103,21 +103,21 @@ void update(Directory **directory, KeyType key) {
     }
     break;
   }
-  case H:
+  case 'h':
     if (chdir("..") != 0)
       break;
     directory_free(dir);
     (*directory) = directory_init();
     break;
-  case J:
+  case 'j':
     if (dir->count > 0 && dir->current_row < dir->count - 1)
       dir->current_row++;
     break;
-  case K:
+  case 'k':
     if (dir->current_row > 0)
       dir->current_row--;
     break;
-  case L:
+  case 'l':
     if (dir->count == 0 || dir->current_row >= dir->count)
       break;
     if (dir->entries[dir->current_row].type != DT_DIR)

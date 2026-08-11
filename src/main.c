@@ -9,42 +9,17 @@ int main(void) {
     return 1;
   }
 
-  update(&directory, NONE);
+  update(&directory, 0);
   refresh();
 
   while (1) {
     int ch = getch();
-    switch (ch) {
-    case 'q':
-    case 'Q':
-      goto quit;
-    case 'h':
-    case 'H':
-      update(&directory, H);
+    if (ch == 'q') {
       break;
-    case 'l':
-    case 'L':
-      update(&directory, L);
-      break;
-    case 'j':
-    case 'J':
-      update(&directory, J);
-      break;
-    case 'k':
-    case 'K':
-      update(&directory, K);
-      break;
-    case 'y':
-    case 'Y':
-      update(&directory, Y);
-      break;
-    default:
-      continue;
     }
-
+    update(&directory, ch);
     refresh();
   }
-quit:
 
   directory_free(directory);
   endwin();

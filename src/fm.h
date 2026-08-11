@@ -31,15 +31,6 @@ enum {
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
 
-typedef enum {
-  Y,
-  H,
-  J,
-  K,
-  L,
-  NONE,
-} KeyType;
-
 typedef struct dirent DirectoryEntry;
 
 typedef struct FileEntry {
@@ -57,7 +48,7 @@ typedef struct Directory {
 
 Directory *directory_init(void);
 void directory_free(Directory *directory);
-void update(Directory **directory, KeyType key);
+void update(Directory **directory, int key);
 
 void copy_to_clipboard(const char *text);
 
