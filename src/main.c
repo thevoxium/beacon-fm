@@ -1,7 +1,10 @@
 #include "fm.h"
 
 int main(void) {
-  INIT_NCURSES();
+
+  if (init_ncurses() != 0) {
+    return 1;
+  }
 
   Directory *directory = directory_init();
   if (directory == NULL) {

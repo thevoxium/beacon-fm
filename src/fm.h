@@ -12,24 +12,10 @@ enum {
   PAIR_FILE,
 };
 
-#define INIT_NCURSES()                                                         \
-  do {                                                                         \
-    if (initscr() == NULL) {                                                   \
-      return 1;                                                                \
-    }                                                                          \
-    cbreak();                                                                  \
-    noecho();                                                                  \
-    curs_set(0);                                                               \
-    keypad(stdscr, TRUE);                                                      \
-    start_color();                                                             \
-    use_default_colors();                                                      \
-    init_pair(PAIR_SELECTED, COLOR_BLACK, COLOR_CYAN);                         \
-    init_pair(PAIR_DIR, COLOR_CYAN, -1);                                       \
-    init_pair(PAIR_FILE, COLOR_WHITE, -1);                                     \
-  } while (0)
-
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) < (b) ? (b) : (a))
+
+int init_ncurses(void);
 
 typedef struct dirent DirectoryEntry;
 

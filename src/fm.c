@@ -10,6 +10,25 @@
 #include <string.h>
 #include <unistd.h>
 
+int init_ncurses(void) {
+  if (initscr() == NULL) {
+    return 1;
+  }
+
+  cbreak();
+  noecho();
+  curs_set(0);
+  keypad(stdscr, TRUE);
+  start_color();
+  use_default_colors();
+
+  init_pair(PAIR_SELECTED, COLOR_BLACK, COLOR_CYAN);
+  init_pair(PAIR_DIR, COLOR_CYAN, -1);
+  init_pair(PAIR_FILE, COLOR_WHITE, -1);
+
+  return 0;
+}
+
 Directory *directory_init(void) {
   Directory *directory = (Directory *)malloc(sizeof(Directory));
   if (directory == NULL) {
