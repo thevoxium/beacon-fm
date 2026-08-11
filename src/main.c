@@ -34,6 +34,10 @@ int main(void) {
     case 'K':
       update(&directory, K);
       break;
+    case 'y':
+    case 'Y':
+      update(&directory, Y);
+      break;
     default:
       continue;
     }

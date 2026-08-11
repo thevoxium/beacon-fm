@@ -92,6 +92,17 @@ void update(Directory **directory, KeyType key) {
   clear();
   Directory *dir = *directory;
   switch (key) {
+  case Y: {
+    const char *name = dir->entries[dir->current_row].name;
+    size_t len = strlen(dir->path) + 1 + strlen(name) + 1;
+    char *full = (char *)malloc(len);
+    if (full != NULL) {
+      snprintf(full, len, "%s/%s", dir->path, name);
+      copy_to_clipboard(full);
+      free(full);
+    }
+    break;
+  }
   case H:
     if (chdir("..") != 0)
       break;
@@ -155,4 +166,26 @@ void update(Directory **directory, KeyType key) {
       attroff(COLOR_PAIR(PAIR_FILE));
     }
   }
+}
+
+void copy_to_clipboard(const char *text) {
+  if (text == NULL) {
+    return;
+  }
+
+#ifdef __APPLE__
+  FILE *pipe = popen("pbcopy", "w");
+  if (pipe == NULL) {
+    return;
+  }
+  size_t len = strlen(text);
+  if (fwrite(text, 1, len, pipe) != len) {
+    pclose(pipe);
+    return;
+  }
+  pclose(pipe);
+
+  return;
+#endif /* ifdef __APPLE */
+  return;
 }
