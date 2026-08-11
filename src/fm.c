@@ -123,8 +123,17 @@ void update(Directory **directory, KeyType key) {
 
   if ((*directory) == NULL)
     return;
-  for (size_t i = 0; i < (*directory)->count; i++) {
-    if (i == (size_t)(*directory)->current_row) {
+
+  int rows, cols;
+  getmaxyx(stdscr, rows, cols);
+
+  size_t visible = (size_t)rows;
+  size_t first = ((*directory)->current_row >= visible)
+                     ? ((*directory)->current_row - visible + 1)
+                     : 0;
+
+  for (size_t i = first; i < MIN((*directory)->count, first + visible); i++) {
+    if (i == (*directory)->current_row) {
       attron(COLOR_PAIR(1));
       printw("%s\n", (*directory)->entries[i].name);
       attroff(COLOR_PAIR(1));
