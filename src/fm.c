@@ -151,12 +151,9 @@ void handle_keys(Directory **directory, int key) {
   default:
     break;
   }
-
-  if ((*directory) == NULL)
-    return;
 }
 
-void render(Directory **directory, int key) {
+void render(Directory **directory) {
   int rows, cols;
   getmaxyx(stdscr, rows, cols);
 
@@ -190,9 +187,8 @@ void render(Directory **directory, int key) {
 
 void update(Directory **directory, int key) {
   clear();
-
   handle_keys(directory, key);
-  render(directory, key);
+  render(directory);
 }
 
 void copy_to_clipboard(const char *text) {
