@@ -6,6 +6,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+enum {
+  PAIR_SELECTED = 1,
+  PAIR_DIR,
+  PAIR_FILE,
+};
+
 #define INIT_NCURSES()                                                         \
   do {                                                                         \
     if (initscr() == NULL) {                                                   \
@@ -16,7 +22,10 @@
     curs_set(0);                                                               \
     keypad(stdscr, TRUE);                                                      \
     start_color();                                                             \
-    init_pair(1, COLOR_WHITE, COLOR_GREEN);                                    \
+    use_default_colors();                                                      \
+    init_pair(PAIR_SELECTED, COLOR_BLACK, COLOR_CYAN);                         \
+    init_pair(PAIR_DIR, COLOR_CYAN, -1);                                       \
+    init_pair(PAIR_FILE, COLOR_WHITE, -1);                                     \
   } while (0)
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

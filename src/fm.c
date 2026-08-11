@@ -133,12 +133,19 @@ void update(Directory **directory, KeyType key) {
                      : 0;
 
   for (size_t i = first; i < MIN((*directory)->count, first + visible); i++) {
+    FileEntry *file = &(*directory)->entries[i];
     if (i == (*directory)->current_row) {
-      attron(COLOR_PAIR(1));
-      printw("%s\n", (*directory)->entries[i].name);
-      attroff(COLOR_PAIR(1));
+      attron(COLOR_PAIR(PAIR_SELECTED));
+      printw("%s\n", file->name);
+      attroff(COLOR_PAIR(PAIR_SELECTED));
+    } else if (file->type == DT_DIR) {
+      attron(COLOR_PAIR(PAIR_DIR) | A_BOLD);
+      printw("%s\n", file->name);
+      attroff(COLOR_PAIR(PAIR_DIR) | A_BOLD);
     } else {
-      printw("%s\n", (*directory)->entries[i].name);
+      attron(COLOR_PAIR(PAIR_FILE));
+      printw("%s\n", file->name);
+      attroff(COLOR_PAIR(PAIR_FILE));
     }
   }
 }
