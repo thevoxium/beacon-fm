@@ -107,8 +107,7 @@ void directory_free(Directory *directory) {
   free(directory);
 }
 
-void update(Directory **directory, int key) {
-  clear();
+void handle_keys(Directory **directory, int key) {
   Directory *dir = *directory;
   switch (key) {
   case 'y': {
@@ -155,7 +154,9 @@ void update(Directory **directory, int key) {
 
   if ((*directory) == NULL)
     return;
+}
 
+void render(Directory **directory, int key) {
   int rows, cols;
   getmaxyx(stdscr, rows, cols);
 
@@ -185,6 +186,13 @@ void update(Directory **directory, int key) {
       attroff(COLOR_PAIR(PAIR_FILE));
     }
   }
+}
+
+void update(Directory **directory, int key) {
+  clear();
+
+  handle_keys(directory, key);
+  render(directory, key);
 }
 
 void copy_to_clipboard(const char *text) {

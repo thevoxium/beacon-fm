@@ -34,6 +34,8 @@ typedef struct Directory {
 
 Directory *directory_init(void);
 void directory_free(Directory *directory);
+void handle_keys(Directory **directory, int key);
+void render(Directory **directory, int key);
 void update(Directory **directory, int key);
 
 void copy_to_clipboard(const char *text);
