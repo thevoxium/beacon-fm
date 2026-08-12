@@ -24,10 +24,10 @@ int init_ncurses(void) {
 
 static const KeyActionTable key_actions_table_pairs[] = {
     {'y', ACTION_YANK}, {'h', ACTION_PARENT}, {'j', ACTION_DOWN},
-    {'k', ACTION_UP},   {'l', ACTION_NEXT},
+    {'k', ACTION_UP},   {'l', ACTION_NEXT},   {'.', ACTION_HIDDEN_TOGGLE},
 };
 
-Action action_from_key(int ch) {
+static Action action_from_key(int ch) {
   for (size_t i = 0;
        i < sizeof(key_actions_table_pairs) / sizeof(key_actions_table_pairs[0]);
        i++) {
@@ -38,7 +38,7 @@ Action action_from_key(int ch) {
   return ACTION_NONE;
 }
 
-Directory *directory_init(void) {
+Directory *directory_init(bool show_hidden) {
   Directory *directory = (Directory *)malloc(sizeof(Directory));
   if (directory == NULL) {
     return NULL;
@@ -62,6 +62,7 @@ Directory *directory_init(void) {
 
   DirectoryEntry *entry;
 
+  directory->show_hidden = show_hidden; // 0 means do not show
   directory->current_row = 0;
   directory->count = 0;
   directory->capacity = INIT_CAPACITY;
@@ -87,8 +88,12 @@ Directory *directory_init(void) {
       directory->entries = resized;
     }
 
-    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
       continue;
+    }
+    if (entry->d_name[0] == '.' && show_hidden == 0) {
+      continue;
+    }
 
     FileEntry *file = &directory->entries[directory->count];
     file->name = strdup(entry->d_name);
@@ -120,8 +125,8 @@ void handle_keys(Directory **directory, int key) {
   Directory *dir = *directory;
   size_t current_row = dir->current_row;
   size_t count = dir->count;
+  bool show_hidden = dir->show_hidden;
   const char *path = dir->path;
-
   Action action = action_from_key(key);
 
   switch (action) {
@@ -136,20 +141,24 @@ void handle_keys(Directory **directory, int key) {
     }
     break;
   }
+
   case ACTION_PARENT:
     if (chdir("..") != 0)
       break;
     directory_free(dir);
-    (*directory) = directory_init();
+    (*directory) = directory_init(show_hidden);
     break;
+
   case ACTION_DOWN:
     if (count > 0 && current_row < count - 1)
       dir->current_row++;
     break;
+
   case ACTION_UP:
     if (current_row > 0)
       dir->current_row--;
     break;
+
   case ACTION_NEXT:
     if (count == 0 || current_row >= count)
       break;
@@ -157,12 +166,27 @@ void handle_keys(Directory **directory, int key) {
       break;
 
     chdir(dir->entries[current_row].name);
-    Directory *next_dir = directory_init();
+    Directory *next_dir = directory_init(show_hidden);
     if (next_dir != NULL) {
       directory_free(dir);
       (*directory) = next_dir;
     }
     break;
+
+  case ACTION_HIDDEN_TOGGLE:
+    if (show_hidden == 0) {
+      show_hidden = 1;
+    } else {
+      show_hidden = 0;
+    }
+
+    Directory *new_dir = directory_init(show_hidden);
+    if (new_dir != NULL) {
+      directory_free(dir);
+      (*directory) = new_dir;
+    }
+    break;
+
   default:
     break;
   }

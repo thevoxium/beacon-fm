@@ -6,7 +6,7 @@ int main(void) {
     return 1;
   }
 
-  Directory *directory = directory_init();
+  Directory *directory = directory_init(false);
   if (directory == NULL) {
     endwin();
     return 1;

@@ -3,6 +3,7 @@
 
 #include <dirent.h>
 #include <ncurses.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -26,6 +27,7 @@ typedef enum Action {
   ACTION_UP,
   ACTION_DOWN,
   ACTION_NONE,
+  ACTION_HIDDEN_TOGGLE,
 } Action;
 
 typedef struct KeyActionTable {
@@ -48,11 +50,12 @@ typedef struct Directory {
   size_t count;
   size_t capacity;
   size_t current_row;
+  bool show_hidden;
 } Directory;
 
 Action key_to_action(int key);
 
-Directory *directory_init(void);
+Directory *directory_init(bool show_hidden);
 void directory_free(Directory *directory);
 void handle_keys(Directory **directory, int key);
 void render(Directory **directory);
