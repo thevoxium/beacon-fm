@@ -12,7 +12,7 @@ int main(void) {
     return 1;
   }
 
-  update(&directory, 0);
+  update(&directory, ACTION_NONE);
   refresh();
 
   while (1) {

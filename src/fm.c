@@ -1,14 +1,7 @@
 #include "fm.h"
 
 #define MARGIN_X 2
-#include <dirent.h>
-#include <ncurses.h>
-#include <stddef.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#define INIT_CAPACITY 64
 
 int init_ncurses(void) {
   if (initscr() == NULL) {
@@ -27,6 +20,22 @@ int init_ncurses(void) {
   init_pair(PAIR_FILE, COLOR_WHITE, -1);
 
   return 0;
+}
+
+static const KeyActionTable key_actions_table_pairs[] = {
+    {'y', ACTION_YANK}, {'h', ACTION_PARENT}, {'j', ACTION_DOWN},
+    {'k', ACTION_UP},   {'l', ACTION_NEXT},
+};
+
+Action action_from_key(int ch) {
+  for (size_t i = 0;
+       i < sizeof(key_actions_table_pairs) / sizeof(key_actions_table_pairs[0]);
+       i++) {
+    if (key_actions_table_pairs[i].key == ch)
+      return key_actions_table_pairs[i].action;
+  }
+
+  return ACTION_NONE;
 }
 
 Directory *directory_init(void) {
@@ -55,7 +64,7 @@ Directory *directory_init(void) {
 
   directory->current_row = 0;
   directory->count = 0;
-  directory->capacity = 64;
+  directory->capacity = INIT_CAPACITY;
   directory->entries =
       (FileEntry *)malloc(directory->capacity * sizeof(FileEntry));
   if (directory->entries == NULL) {
@@ -109,10 +118,16 @@ void directory_free(Directory *directory) {
 
 void handle_keys(Directory **directory, int key) {
   Directory *dir = *directory;
-  switch (key) {
-  case 'y': {
-    const char *name = dir->entries[dir->current_row].name;
-    size_t len = strlen(dir->path) + 1 + strlen(name) + 1;
+  size_t current_row = dir->current_row;
+  size_t count = dir->count;
+  const char *path = dir->path;
+
+  Action action = action_from_key(key);
+
+  switch (action) {
+  case ACTION_YANK: {
+    const char *name = dir->entries[current_row].name;
+    size_t len = strlen(path) + 1 + strlen(name) + 1;
     char *full = (char *)malloc(len);
     if (full != NULL) {
       snprintf(full, len, "%s/%s", dir->path, name);
@@ -121,27 +136,27 @@ void handle_keys(Directory **directory, int key) {
     }
     break;
   }
-  case 'h':
+  case ACTION_PARENT:
     if (chdir("..") != 0)
       break;
     directory_free(dir);
     (*directory) = directory_init();
     break;
-  case 'j':
-    if (dir->count > 0 && dir->current_row < dir->count - 1)
+  case ACTION_DOWN:
+    if (count > 0 && current_row < count - 1)
       dir->current_row++;
     break;
-  case 'k':
-    if (dir->current_row > 0)
+  case ACTION_UP:
+    if (current_row > 0)
       dir->current_row--;
     break;
-  case 'l':
-    if (dir->count == 0 || dir->current_row >= dir->count)
+  case ACTION_NEXT:
+    if (count == 0 || current_row >= count)
       break;
-    if (dir->entries[dir->current_row].type != DT_DIR)
+    if (dir->entries[current_row].type != DT_DIR)
       break;
 
-    chdir(dir->entries[dir->current_row].name);
+    chdir(dir->entries[current_row].name);
     Directory *next_dir = directory_init();
     if (next_dir != NULL) {
       directory_free(dir);
@@ -210,5 +225,4 @@ void copy_to_clipboard(const char *text) {
 
   return;
 #endif /* ifdef __APPLE */
-  return;
 }

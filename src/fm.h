@@ -5,6 +5,13 @@
 #include <ncurses.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) < (b) ? (b) : (a))
 
 enum {
   PAIR_SELECTED = 1,
@@ -12,8 +19,19 @@ enum {
   PAIR_FILE,
 };
 
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) < (b) ? (b) : (a))
+typedef enum Action {
+  ACTION_YANK,
+  ACTION_PARENT,
+  ACTION_NEXT,
+  ACTION_UP,
+  ACTION_DOWN,
+  ACTION_NONE,
+} Action;
+
+typedef struct KeyActionTable {
+  int key;
+  Action action;
+} KeyActionTable;
 
 int init_ncurses(void);
 
@@ -31,6 +49,8 @@ typedef struct Directory {
   size_t capacity;
   size_t current_row;
 } Directory;
+
+Action key_to_action(int key);
 
 Directory *directory_init(void);
 void directory_free(Directory *directory);
