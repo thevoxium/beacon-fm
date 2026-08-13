@@ -75,7 +75,7 @@ Action key_to_action(int key);
 Directory *directory_init(bool show_hidden);
 void directory_free(Directory *directory);
 void handle_keys(Directory **directory, int key);
-void render(Directory **directory);
+void render(Directory *directory);
 void update(Directory **directory, int key);
 
 void copy_to_clipboard(const char *text);

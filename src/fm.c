@@ -216,7 +216,7 @@ void handle_keys(Directory **directory, int key) {
   }
 }
 
-void render(Directory **directory) {
+void render(Directory *directory) {
   int rows, cols;
   getmaxyx(stdscr, rows, cols);
 
@@ -224,14 +224,14 @@ void render(Directory **directory) {
   //  and i-first+1 below gives me good enough space at the top & bottom
   //  for status
   size_t visible = (size_t)rows - 3;
-  size_t first = ((*directory)->current_row >= visible)
-                     ? ((*directory)->current_row - visible + 1)
+  size_t first = (directory->current_row >= visible)
+                     ? (directory->current_row - visible + 1)
                      : 0;
 
-  for (size_t i = first; i < MIN((*directory)->count, first + visible); i++) {
-    FileEntry *file = &(*directory)->entries[i];
+  for (size_t i = first; i < MIN(directory->count, first + visible); i++) {
+    FileEntry *file = &(directory->entries[i]);
     move((int)(i - first + 1), MARGIN_X);
-    if (i == (*directory)->current_row) {
+    if (i == directory->current_row) {
       attron(COLOR_PAIR(PAIR_SELECTED));
       if (file->type == DT_DIR) {
         printw("%s %s", ICON_FOLDER, file->name);
@@ -253,19 +253,19 @@ void render(Directory **directory) {
   // printing the status bar
   attron(COLOR_PAIR(STATUS_BAR));
   move((int)(rows - 1), MARGIN_X);
-  char *file_path = full_file_path((*directory));
+  char *file_path = full_file_path(directory);
   printw("%s", file_path);
   move((int)(rows - 1), cols - 5);
   // hardcoding margin from the right
   // todo
-  printw("%d", (*directory)->count);
+  printw("%d", directory->count);
   attroff(COLOR_PAIR(STATUS_BAR));
 }
 
 void update(Directory **directory, int key) {
   clear();
   handle_keys(directory, key);
-  render(directory);
+  render(*directory);
 }
 
 void copy_to_clipboard(const char *text) {
