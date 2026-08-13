@@ -18,6 +18,7 @@ enum {
   PAIR_SELECTED = 1,
   PAIR_DIR,
   PAIR_FILE,
+  STATUS_BAR,
 };
 
 typedef enum Action {

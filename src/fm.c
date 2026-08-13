@@ -1,4 +1,5 @@
 #include "fm.h"
+#include <stddef.h>
 
 #define MARGIN_X 2
 #define INIT_CAPACITY 64
@@ -15,9 +16,10 @@ int init_ncurses(void) {
   start_color();
   use_default_colors();
 
-  init_pair(PAIR_SELECTED, COLOR_BLACK, COLOR_CYAN);
-  init_pair(PAIR_DIR, COLOR_CYAN, -1);
+  init_pair(PAIR_SELECTED, COLOR_BLACK, COLOR_BLUE);
+  init_pair(PAIR_DIR, COLOR_BLUE, -1);
   init_pair(PAIR_FILE, COLOR_WHITE, -1);
+  init_pair(STATUS_BAR, COLOR_BLUE, -1);
 
   return 0;
 }
@@ -121,23 +123,30 @@ void directory_free(Directory *directory) {
   free(directory);
 }
 
+static char *full_file_path(Directory *dir) {
+  const char *name = dir->entries[dir->current_row].name;
+  size_t len = strlen(dir->path) + 1 + strlen(name) + 1;
+  char *full = (char *)malloc(len);
+  if (full != NULL) {
+    snprintf(full, len, "%s/%s", dir->path, name);
+    return full;
+  }
+  return NULL;
+}
+
 void handle_keys(Directory **directory, int key) {
   Directory *dir = *directory;
   size_t current_row = dir->current_row;
   size_t count = dir->count;
   bool show_hidden = dir->show_hidden;
-  const char *path = dir->path;
   Action action = action_from_key(key);
 
   switch (action) {
   case ACTION_YANK: {
-    const char *name = dir->entries[current_row].name;
-    size_t len = strlen(path) + 1 + strlen(name) + 1;
-    char *full = (char *)malloc(len);
-    if (full != NULL) {
-      snprintf(full, len, "%s/%s", dir->path, name);
-      copy_to_clipboard(full);
-      free(full);
+    char *file_path = full_file_path(dir);
+    if (file_path != NULL) {
+      copy_to_clipboard(file_path);
+      free(file_path);
     }
     break;
   }
@@ -196,14 +205,17 @@ void render(Directory **directory) {
   int rows, cols;
   getmaxyx(stdscr, rows, cols);
 
-  size_t visible = (size_t)rows;
+  // this is a workaround, i did not think a lot about this, but 3 here
+  //  and i-first+1 below gives me good enough space at the top & bottom
+  //  for status
+  size_t visible = (size_t)rows - 3;
   size_t first = ((*directory)->current_row >= visible)
                      ? ((*directory)->current_row - visible + 1)
                      : 0;
 
   for (size_t i = first; i < MIN((*directory)->count, first + visible); i++) {
     FileEntry *file = &(*directory)->entries[i];
-    move((int)(i - first), MARGIN_X);
+    move((int)(i - first + 1), MARGIN_X);
     if (i == (*directory)->current_row) {
       attron(COLOR_PAIR(PAIR_SELECTED));
       if (file->type == DT_DIR) {
@@ -222,6 +234,17 @@ void render(Directory **directory) {
       attroff(COLOR_PAIR(PAIR_FILE));
     }
   }
+
+  // printing the status bar
+  attron(COLOR_PAIR(STATUS_BAR));
+  move((int)(rows - 1), MARGIN_X);
+  char *file_path = full_file_path((*directory));
+  printw("%s", file_path);
+  move((int)(rows - 1), cols - 5);
+  // hardcoding margin from the left
+  // todo
+  printw("%d", (*directory)->count);
+  attroff(COLOR_PAIR(STATUS_BAR));
 }
 
 void update(Directory **directory, int key) {
