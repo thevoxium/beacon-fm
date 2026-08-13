@@ -234,14 +234,14 @@ void render(Directory *directory) {
     if (i == directory->current_row) {
       attron(COLOR_PAIR(PAIR_SELECTED));
       if (file->type == DT_DIR) {
-        printw("%s %s", ICON_FOLDER, file->name);
+        printw("%s %s/", ICON_FOLDER, file->name);
       } else {
         printw("%s %s", ICON_FILE, file->name);
       }
       attroff(COLOR_PAIR(PAIR_SELECTED));
     } else if (file->type == DT_DIR) {
       attron(COLOR_PAIR(PAIR_DIR) | A_BOLD);
-      printw("%s %s", ICON_FOLDER, file->name);
+      printw("%s %s/", ICON_FOLDER, file->name);
       attroff(COLOR_PAIR(PAIR_DIR) | A_BOLD);
     } else {
       attron(COLOR_PAIR(PAIR_FILE));
