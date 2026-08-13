@@ -1,25 +1,40 @@
 #include "fm.h"
+#include "icons.h"
 #include <stddef.h>
 
 #define MARGIN_X 2
 #define INIT_CAPACITY 64
 
 int init_ncurses(void) {
+  setlocale(LC_ALL, "");
   if (initscr() == NULL) {
     return 1;
   }
-
   cbreak();
   noecho();
   curs_set(0);
   keypad(stdscr, TRUE);
   start_color();
-  use_default_colors();
 
-  init_pair(PAIR_SELECTED, COLOR_BLACK, COLOR_BLUE);
-  init_pair(PAIR_DIR, COLOR_BLUE, -1);
-  init_pair(PAIR_FILE, COLOR_WHITE, -1);
-  init_pair(STATUS_BAR, COLOR_BLUE, -1);
+  init_color(GRUVBOX_BG, 157, 157, 157);
+  init_color(GRUVBOX_FG, 922, 859, 698);
+  init_color(GRUVBOX_YELLOW, 980, 741, 184);
+  init_color(GRUVBOX_BLUE, 514, 647, 596);
+  init_color(GRUVBOX_GREEN, 722, 733, 149);
+  init_color(GRUVBOX_RED, 984, 286, 204);
+  init_color(GRUVBOX_ORANGE, 996, 502, 98);
+  init_color(GRUVBOX_AQUA, 557, 753, 486);
+  init_color(GRUVBOX_PURPLE, 827, 525, 608);
+  init_color(GRUVBOX_GRAY, 573, 514, 455);
+  init_color(GRUVBOX_BG_ALT, 114, 125, 129);
+
+  init_pair(PAIR_SELECTED, GRUVBOX_BG, GRUVBOX_YELLOW);
+  init_pair(PAIR_DIR, GRUVBOX_BLUE, GRUVBOX_BG);
+  init_pair(PAIR_FILE, GRUVBOX_FG, GRUVBOX_BG);
+  init_pair(STATUS_BAR, GRUVBOX_YELLOW, GRUVBOX_BG);
+  init_pair(PAIR_BG, GRUVBOX_FG, GRUVBOX_BG);
+
+  bkgd(COLOR_PAIR(PAIR_BG));
 
   return 0;
 }
@@ -219,18 +234,18 @@ void render(Directory **directory) {
     if (i == (*directory)->current_row) {
       attron(COLOR_PAIR(PAIR_SELECTED));
       if (file->type == DT_DIR) {
-        printw("> %s", file->name);
+        printw("%s %s", ICON_FOLDER, file->name);
       } else {
-        printw("%s", file->name);
+        printw("%s %s", ICON_FILE, file->name);
       }
       attroff(COLOR_PAIR(PAIR_SELECTED));
     } else if (file->type == DT_DIR) {
       attron(COLOR_PAIR(PAIR_DIR) | A_BOLD);
-      printw("> %s", file->name);
+      printw("%s %s", ICON_FOLDER, file->name);
       attroff(COLOR_PAIR(PAIR_DIR) | A_BOLD);
     } else {
       attron(COLOR_PAIR(PAIR_FILE));
-      printw("%s", file->name);
+      printw("%s %s", ICON_FILE, file->name);
       attroff(COLOR_PAIR(PAIR_FILE));
     }
   }
@@ -241,7 +256,7 @@ void render(Directory **directory) {
   char *file_path = full_file_path((*directory));
   printw("%s", file_path);
   move((int)(rows - 1), cols - 5);
-  // hardcoding margin from the left
+  // hardcoding margin from the right
   // todo
   printw("%d", (*directory)->count);
   attroff(COLOR_PAIR(STATUS_BAR));

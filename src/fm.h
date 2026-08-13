@@ -2,6 +2,7 @@
 #define FM_H
 
 #include <dirent.h>
+#include <locale.h>
 #include <ncurses.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -19,6 +20,21 @@ enum {
   PAIR_DIR,
   PAIR_FILE,
   STATUS_BAR,
+  PAIR_BG,
+};
+
+enum {
+  GRUVBOX_BG = 8,
+  GRUVBOX_FG,
+  GRUVBOX_YELLOW,
+  GRUVBOX_BLUE,
+  GRUVBOX_GREEN,
+  GRUVBOX_RED,
+  GRUVBOX_ORANGE,
+  GRUVBOX_AQUA,
+  GRUVBOX_PURPLE,
+  GRUVBOX_GRAY,
+  GRUVBOX_BG_ALT,
 };
 
 typedef enum Action {
